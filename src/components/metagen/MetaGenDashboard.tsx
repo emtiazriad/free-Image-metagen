@@ -142,13 +142,26 @@ export function MetaGenDashboard() {
     return typeof c?.randomUUID === "function" ? c.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
   };
 
+  const getFileExtension = (name: string) => {
+    const clean = (name ?? "").toLowerCase().trim();
+    const dot = clean.lastIndexOf(".");
+    return dot >= 0 ? clean.slice(dot).trim() : "";
+  };
+
   const onPickFiles = (list: FileList | null) => {
     if (!list || list.length === 0) return;
-    const okTypes = ["image/jpeg", "image/png", "image/webp"];
+    const okTypes = new Set(["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml", "image/svg"]);
+    const okExtensions = new Set([".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg"]);
     const next: BatchItem[] = [];
     for (const f of Array.from(list)) {
-      if (!okTypes.includes(f.type)) {
-        toast({ title: "Unsupported file", description: `"${f.name}" is not JPG, PNG, or WEBP.` });
+      const mime = (f.type ?? "").toLowerCase().trim();
+      const ext = getFileExtension(f.name);
+      const isOkType = okTypes.has(mime) || okExtensions.has(ext);
+      if (!isOkType) {
+        toast({
+          title: "Unsupported file",
+          description: `"${f.name}" is not a supported format (JPG, PNG, WEBP, GIF, SVG). If it's an SVG/GIF, ensure the filename ends with .svg or .gif.`,
+        });
         continue;
       }
       // No hard file-size limit. Note: very large images may fail during base64 encoding
