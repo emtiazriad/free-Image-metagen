@@ -62,8 +62,30 @@ export function BatchResultsTable({
     );
   };
 
+  const doneCount = items.filter((it) => it.status === "done").length;
+  const totalCount = items.length;
+  const generatingCount = items.filter((it) => it.status === "generating").length;
+
   return (
     <div className="overflow-hidden rounded-lg border bg-card">
+      {/* Progress indicator */}
+      <div className="flex items-center justify-between border-b bg-muted/30 px-4 py-2">
+        <div className="flex items-center gap-2 text-sm">
+          <span className="font-medium">Progress:</span>
+          <span className="text-muted-foreground">
+            {doneCount} / {totalCount} generated
+            {generatingCount > 0 && (
+              <span className="ml-2 text-primary">({generatingCount} in progress)</span>
+            )}
+          </span>
+        </div>
+        <div className="h-2 w-32 overflow-hidden rounded-full bg-muted">
+          <div
+            className="h-full bg-primary transition-all duration-300"
+            style={{ width: `${totalCount > 0 ? (doneCount / totalCount) * 100 : 0}%` }}
+          />
+        </div>
+      </div>
       <Table>
         <TableHeader>
           <TableRow>
