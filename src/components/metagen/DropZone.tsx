@@ -86,7 +86,7 @@ export function DropZone({ onFilesSelected, className }: DropZoneProps) {
             or <span className="text-primary font-medium underline-offset-2 hover:underline">browse files</span>
           </p>
           <p className="text-xs text-muted-foreground/70 pt-2">
-            Supports JPG, PNG, WEBP, GIF, SVG, EPS, AI
+            Supports JPG, PNG, WEBP, GIF, SVG
           </p>
         </div>
       </div>
