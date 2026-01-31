@@ -51,7 +51,7 @@ export function DropZone({ onFilesSelected, className }: DropZoneProps) {
     >
       <input
         type="file"
-        accept="image/jpeg,image/png,image/webp"
+        accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml,.eps,.ai"
         multiple
         className="sr-only"
         onChange={(e) => onFilesSelected(e.target.files)}
@@ -86,7 +86,7 @@ export function DropZone({ onFilesSelected, className }: DropZoneProps) {
             or <span className="text-primary font-medium underline-offset-2 hover:underline">browse files</span>
           </p>
           <p className="text-xs text-muted-foreground/70 pt-2">
-            Supports JPG, PNG, WEBP
+            Supports JPG, PNG, WEBP, GIF, SVG, EPS, AI
           </p>
         </div>
       </div>
