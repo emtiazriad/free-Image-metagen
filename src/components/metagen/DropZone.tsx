@@ -51,7 +51,7 @@ export function DropZone({ onFilesSelected, className }: DropZoneProps) {
     >
       <input
         type="file"
-        accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml,.eps,.ai"
+        accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
         multiple
         className="sr-only"
         onChange={(e) => onFilesSelected(e.target.files)}
