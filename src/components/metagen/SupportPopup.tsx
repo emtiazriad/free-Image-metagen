@@ -40,7 +40,7 @@ export function SupportPopup() {
               className="h-32 w-auto rounded-lg"
             />
           </div>
-          <DialogTitle className="text-xl">Love MetaGen AI? 💖</DialogTitle>
+          <DialogTitle className="text-xl">Love Free-ImageMetagen? 💖</DialogTitle>
           <DialogDescription className="text-base">
             If this tool saves you time, consider supporting the project to keep it free and improving!
           </DialogDescription>
