@@ -71,7 +71,7 @@ export function WorkspaceHeader({
           <label className="inline-flex">
             <input
               type="file"
-              accept="image/jpeg,image/png,image/webp"
+              accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
               multiple
               className="sr-only"
               onChange={(e) => onPickFiles(e.target.files)}
