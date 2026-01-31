@@ -125,7 +125,7 @@ export function MetaGenDashboard() {
   }, []);
 
   useEffect(() => {
-      document.title = "Free-ImageMetagen — Image Metadata Generator";
+    document.title = "Free-ImageMetagen — Image Metadata Generator";
   }, []);
 
   const canGenerate = useMemo(() => {
