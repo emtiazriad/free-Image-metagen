@@ -144,14 +144,11 @@ export function MetaGenDashboard() {
 
   const onPickFiles = (list: FileList | null) => {
     if (!list || list.length === 0) return;
-    const okTypes = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml"];
+    const okTypes = ["image/jpeg", "image/png", "image/webp"];
     const next: BatchItem[] = [];
     for (const f of Array.from(list)) {
       if (!okTypes.includes(f.type)) {
-        const ext = f.name.toLowerCase().slice(f.name.lastIndexOf("."));
-      const isOkType = okTypes.includes(f.type) || okExtensions.includes(ext);
-      if (!isOkType) {
-        toast({ title: "Unsupported file", description: `"${f.name}" is not a supported format (JPG, PNG, WEBP, GIF, SVG).` });
+        toast({ title: "Unsupported file", description: `"${f.name}" is not JPG, PNG, or WEBP.` });
         continue;
       }
       // No hard file-size limit. Note: very large images may fail during base64 encoding
