@@ -62,7 +62,7 @@ export function WorkspaceHeader({
     <header className="sticky top-0 z-10 border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/70">
       <div className="container flex h-14 items-center justify-between gap-2">
         <div className="min-w-0 flex-shrink">
-          <div className="truncate text-sm font-semibold leading-none">MetaGen AI</div>
+          <div className="truncate text-sm font-semibold leading-none">Free-ImageMetagen</div>
           <div className="truncate text-xs text-muted-foreground hidden xs:block">Pro workspace</div>
         </div>
 
