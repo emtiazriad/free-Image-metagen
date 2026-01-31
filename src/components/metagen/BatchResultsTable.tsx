@@ -74,9 +74,6 @@ export function BatchResultsTable({
           <span className="font-medium">Progress:</span>
           <span className="text-muted-foreground">
             {doneCount} / {totalCount} generated
-            {generatingCount > 0 && (
-              <span className="ml-2 text-primary">({generatingCount} in progress)</span>
-            )}
           </span>
         </div>
         <div className="h-2 w-32 overflow-hidden rounded-full bg-muted">
