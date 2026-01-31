@@ -20,6 +20,7 @@ import { WorkspaceHeader } from "@/components/metagen/WorkspaceHeader";
 import { MetaGenDetailsDrawer } from "@/components/metagen/MetaGenDetailsDrawer";
 import { MetadataEditorDialog } from "@/components/metagen/MetadataEditorDialog";
 import { SupportPopup } from "@/components/metagen/SupportPopup";
+import { DropZone } from "@/components/metagen/DropZone";
 
 
 const STORAGE_KEY = "metagen_ai_settings_v1";
@@ -529,97 +530,110 @@ TITLE:\nDESCRIPTION:\nALT_TEXT:\nKEYWORDS:\nHASHTAGS:\nCATEGORIES:
       />
 
       <main className="container py-6">
-        <div className="flex items-center justify-between gap-3 flex-wrap">
-          <div className="min-w-0">
-            <h1 className="truncate text-lg font-semibold">Batch results</h1>
-            <p className="text-sm text-muted-foreground">Each row shows the image (left) and generated metadata (right). Exports use the toolbar above.</p>
+        {items.length === 0 ? (
+          <div className="max-w-2xl mx-auto">
+            <div className="text-center mb-6">
+              <h1 className="text-2xl font-bold text-foreground">Upload Images</h1>
+              <p className="text-muted-foreground mt-1">Add images to generate SEO-optimized metadata</p>
+            </div>
+            <DropZone onFilesSelected={onPickFiles} />
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs text-muted-foreground">Rate limit: 1 req / 6s</span>
-            {isGenerating && (
-              <Button
-                type="button"
-                variant={isPaused ? "default" : "outline"}
-                size="sm"
-                onClick={togglePause}
-              >
-                {isPaused ? (
-                  <>
-                    <Play className="h-4 w-4" />
-                    Resume
-                  </>
-                ) : (
-                  <>
-                    <Pause className="h-4 w-4" />
-                    Pause
-                  </>
+        ) : (
+          <>
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <div className="min-w-0">
+                <h1 className="truncate text-lg font-semibold">Batch results</h1>
+                <p className="text-sm text-muted-foreground">Each row shows the image (left) and generated metadata (right). Exports use the toolbar above.</p>
+              </div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs text-muted-foreground">Rate limit: 1 req / 6s</span>
+                {isGenerating && (
+                  <Button
+                    type="button"
+                    variant={isPaused ? "default" : "outline"}
+                    size="sm"
+                    onClick={togglePause}
+                  >
+                    {isPaused ? (
+                      <>
+                        <Play className="h-4 w-4" />
+                        Resume
+                      </>
+                    ) : (
+                      <>
+                        <Pause className="h-4 w-4" />
+                        Pause
+                      </>
+                    )}
+                  </Button>
                 )}
-              </Button>
-            )}
-            {items.some((x) => x.status === "done") && !isGenerating && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={async () => {
-                  const doneIds = new Set(items.filter((x) => x.status === "done").map((x) => x.id));
-                  if (!doneIds.size) return;
-                  setItems((p) => p.map((x) => (doneIds.has(x.id) ? { ...x, status: "queued", error: undefined } : x)));
-                  await runGeneration(doneIds);
-                }}
-              >
-                <RefreshCw className="h-4 w-4" />
-                Re-generate All
-              </Button>
-            )}
-            {items.length > 0 && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  for (const it of items) URL.revokeObjectURL(it.previewUrl);
-                  setItems([]);
-                  setSelectedId(null);
-                  setEditorId(null);
-                  setIsGenerating(false);
-                  setIsPaused(false);
-                  pauseRef.current = false;
-                  toast({ title: "Cleared", description: "All results have been removed." });
-                }}
-              >
-                <Trash2 className="h-4 w-4" />
-                Clear All
-              </Button>
-            )}
-          </div>
-        </div>
+                {items.some((x) => x.status === "done") && !isGenerating && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={async () => {
+                      const doneIds = new Set(items.filter((x) => x.status === "done").map((x) => x.id));
+                      if (!doneIds.size) return;
+                      setItems((p) => p.map((x) => (doneIds.has(x.id) ? { ...x, status: "queued", error: undefined } : x)));
+                      await runGeneration(doneIds);
+                    }}
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                    Re-generate All
+                  </Button>
+                )}
+                {items.length > 0 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      for (const it of items) URL.revokeObjectURL(it.previewUrl);
+                      setItems([]);
+                      setSelectedId(null);
+                      setEditorId(null);
+                      setIsGenerating(false);
+                      setIsPaused(false);
+                      pauseRef.current = false;
+                      toast({ title: "Cleared", description: "All results have been removed." });
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Clear All
+                  </Button>
+                )}
+              </div>
+            </div>
 
-        <div className="mt-4">
-          <BatchResultsTable
-            items={items}
-            selectedId={selectedId}
-            onSelect={(id) => {
-              setSelectedId(id);
-            }}
-            onEdit={(id) => {
-              setEditorId(id);
-              setSelectedId(id);
-              setEditorOpen(true);
-            }}
-            onRemove={(id) => {
-              setItems((p) => {
-                const it = p.find((x) => x.id === id);
-                if (it) URL.revokeObjectURL(it.previewUrl);
-                return p.filter((x) => x.id !== id);
-              });
-              setSelectedId((p) => (p === id ? null : p));
-              setEditorId((p) => (p === id ? null : p));
-            }}
-            onExportRow={exportRowCSV}
-            onRegenerate={regenerateRow}
-          />
-        </div>
+            <div className="mt-4">
+              <BatchResultsTable
+                items={items}
+                selectedId={selectedId}
+                onSelect={(id) => {
+                  setSelectedId(id);
+                }}
+                onEdit={(id) => {
+                  setEditorId(id);
+                  setSelectedId(id);
+                  setEditorOpen(true);
+                }}
+                onRemove={(id) => {
+                  setItems((p) => {
+                    const it = p.find((x) => x.id === id);
+                    if (it) URL.revokeObjectURL(it.previewUrl);
+                    return p.filter((x) => x.id !== id);
+                  });
+                  setSelectedId((p) => (p === id ? null : p));
+                  setEditorId((p) => (p === id ? null : p));
+                }}
+                onExportRow={exportRowCSV}
+                onRegenerate={regenerateRow}
+              />
+            </div>
+
+          </>
+        )}
       </main>
 
       <MetadataEditorDialog
