@@ -8,7 +8,7 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* MetaGen AI — “Warm Light Workspace” (neutral + warm accent) */
+    /* Free-ImageMetagen — “Warm Light Workspace” (neutral + warm accent) */
     --background: 35 45% 98%;
     --foreground: 25 32% 12%;
 
