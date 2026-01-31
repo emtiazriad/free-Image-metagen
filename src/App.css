@@ -1,0 +1,9 @@
+/* Reset leftover Vite template styles.
+   Layout is handled via Tailwind + the design system tokens.
+*/
+#root {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}

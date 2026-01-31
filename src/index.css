@@ -1,0 +1,129 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* MetaGen AI — “Warm Light Workspace” (neutral + warm accent) */
+    --background: 35 45% 98%;
+    --foreground: 25 32% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 230 35% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 230 35% 12%;
+
+    --primary: 24 92% 52%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 45 95% 55%;
+
+    --secondary: 32 28% 92%;
+    --secondary-foreground: 25 32% 16%;
+
+    --muted: 30 24% 94%;
+    --muted-foreground: 25 10% 42%;
+
+    --accent: 32 50% 95%;
+    --accent-foreground: 25 32% 14%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 30 16% 86%;
+    --input: 30 16% 86%;
+    --ring: 24 92% 52%;
+
+    --radius: 0.5rem;
+
+    /* Extras */
+    --gradient-hero: radial-gradient(900px 520px at 10% 0%, hsl(var(--primary) / 0.12), transparent 60%),
+      radial-gradient(760px 520px at 88% 10%, hsl(var(--primary-glow) / 0.10), transparent 65%),
+      linear-gradient(180deg, hsl(var(--background)), hsl(var(--background)));
+    --gradient-cta: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+    --shadow-elev: 0 18px 60px -30px hsl(var(--foreground) / 0.35);
+    --shadow-glow: 0 18px 60px -28px hsl(var(--primary) / 0.28);
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 24 18% 7%;
+    --foreground: 40 18% 96%;
+
+    --card: 24 16% 10%;
+    --card-foreground: 40 18% 96%;
+
+    --popover: 24 16% 10%;
+    --popover-foreground: 40 18% 96%;
+
+    --primary: 24 92% 62%;
+    --primary-foreground: 24 18% 7%;
+    --primary-glow: 45 95% 58%;
+
+    --secondary: 24 14% 16%;
+    --secondary-foreground: 40 18% 96%;
+
+    --muted: 24 14% 16%;
+    --muted-foreground: 32 12% 72%;
+
+    --accent: 24 14% 16%;
+    --accent-foreground: 40 18% 96%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 24 10% 22%;
+    --input: 24 10% 22%;
+    --ring: 24 92% 62%;
+
+    --gradient-hero: radial-gradient(900px 520px at 12% -5%, hsl(var(--primary) / 0.18), transparent 58%),
+      radial-gradient(760px 520px at 88% 10%, hsl(var(--primary-glow) / 0.12), transparent 62%),
+      linear-gradient(180deg, hsl(var(--background)), hsl(var(--background)));
+    --gradient-cta: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+    --shadow-elev: 0 22px 70px -36px hsl(0 0% 0% / 0.75);
+    --shadow-glow: 0 22px 70px -34px hsl(var(--primary) / 0.30);
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .metagen-hero {
+    background-image: var(--gradient-hero);
+  }
+}

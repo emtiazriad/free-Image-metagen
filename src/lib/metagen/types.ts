@@ -1,0 +1,32 @@
+export type ProviderId = "gemini" | "groq";
+
+export type KeywordStyle = "SEO Focused" | "Stock Photography" | "Social Media" | "Artistic";
+export type Tone = "Professional" | "Creative" | "Marketing" | "Technical";
+
+export type MetaGenControls = {
+  titleLengthMin: number;
+  titleLengthMax: number;
+  descLengthMin: number;
+  descLengthMax: number;
+  keywordCount: number;
+  keywordStyle: KeywordStyle;
+  tone: Tone;
+};
+
+export type MetaGenOutput = {
+  title: string;
+  description: string;
+  altText: string;
+  keywords: string;
+  hashtags: string;
+  categories: string;
+};
+
+export const emptyOutput: MetaGenOutput = {
+  title: "",
+  description: "",
+  altText: "",
+  keywords: "",
+  hashtags: "",
+  categories: "",
+};
