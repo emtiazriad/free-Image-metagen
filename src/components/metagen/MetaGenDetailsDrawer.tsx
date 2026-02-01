@@ -263,7 +263,18 @@ export function MetaGenDetailsDrawer({
                       <Label>Keywords count ({controls.keywordCount})</Label>
                       <Slider value={[controls.keywordCount]} min={5} max={50} step={1} onValueChange={([v]) => setControls((p) => ({ ...p, keywordCount: v }))} />
                     </div>
-
+    <div className="grid gap-2">
+                      <Label>Positive keywords <span className="text-muted-foreground font-normal">(optional)</span></Label>
+                      <Textarea
+                        value={controls.positiveKeywords ?? ""}
+                        onChange={(e) => setControls((p) => ({ ...p, positiveKeywords: e.target.value }))}
+                        placeholder="e.g. sunset, travel, adventure, golden hour"
+                        rows={2}
+                        className="resize-none"
+                      />
+                      <p className="text-xs text-muted-foreground">Keywords/concepts to include in the generated metadata.</p>
+                    </div>
+                    
                     <div className="grid gap-3">
                       <div className="grid gap-2">
                         <Label>Keyword style</Label>
