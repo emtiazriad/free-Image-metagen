@@ -11,6 +11,7 @@ export type MetaGenControls = {
   keywordCount: number;
   keywordStyle: KeywordStyle;
   tone: Tone;
+  positiveKeywords?: string;
 };
 
 export type MetaGenOutput = {
