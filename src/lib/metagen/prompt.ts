@@ -1,7 +1,10 @@
 import type { MetaGenControls } from "./types";
 
 export function buildPrompt(controls: MetaGenControls) {
-  const { titleLengthMin, titleLengthMax, descLengthMin, descLengthMax, keywordCount, keywordStyle, tone } = controls;
+  const { titleLengthMin, titleLengthMax, descLengthMin, descLengthMax, keywordCount, keywordStyle, tone, positiveKeywords } = controls;
+  const positiveKeywordsSection = positiveKeywords?.trim()
+    ? `\nPOSITIVE KEYWORDS TO INCLUDE:\nYou MUST incorporate these keywords/concepts where naturally appropriate: ${positiveKeywords.trim()}\n`
+    : "";
 
   return `You are an expert in image SEO, stock photography metadata, and digital asset optimization.
 Analyze this image and generate metadata according to STRICT character limits.
