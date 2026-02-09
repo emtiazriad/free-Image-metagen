@@ -51,8 +51,7 @@ function createIPTCBlock(metadata: {
 
   // Add Object Name (Title)
   if (metadata.title) {
-    // NOTE: IPTC Object Name is limited to 64 chars by spec.
-    datasets.push(createIPTCDataset(IPTC_TAGS.OBJECT_NAME, metadata.title.slice(0, 64)));
+      datasets.push(createIPTCDataset(IPTC_TAGS.OBJECT_NAME, metadata.title));
   }
 
   // Add Headline (Title field in many IPTC viewers)
