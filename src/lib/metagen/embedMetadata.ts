@@ -1,5 +1,9 @@
 import type { MetaGenOutput } from "./types";
 import { embedJpegMetadata, isJpegFile, type EmbedMetadataInput } from "./jpegMetadata";
+import { embedPngMetadata, isPngFile } from "./pngMetadata";
+import { embedWebpMetadata, isWebpFile } from "./webpMetadata";
+import { embedSvgMetadata, isSvgFile } from "./svgMetadata";
+import { embedGifMetadata, isGifFile } from "./gifMetadata";
 
 export type EmbedSettings = {
   enabled: boolean;
@@ -94,11 +98,7 @@ export async function embedMetadataIntoImage(
     }
   }
 
-  // Only JPEG files can have IPTC metadata embedded
-  const isJpeg = isJpegFile(file);
-  
-  if (!isJpeg || !settings.enabled) {
-    // Return original file as blob for non-JPEG or if embedding disabled
+  if (!settings.enabled) {
     const arrayBuffer = await file.arrayBuffer();
     return {
       blob: new Blob([arrayBuffer], { type: file.type }),
@@ -108,41 +108,47 @@ export async function embedMetadataIntoImage(
   }
 
   try {
-    // Prepare metadata for client-side embedding
-    const metadata: EmbedMetadataInput = {
-      newFilename,
-    } as EmbedMetadataInput & { newFilename?: string };
+    // Prepare metadata for embedding
+    const metadata: EmbedMetadataInput = {} as EmbedMetadataInput;
 
     if (settings.embedTitle && output.title) {
       metadata.title = output.title;
     }
-
     if (settings.embedDescription && output.description) {
       metadata.description = output.description;
     }
-
-    // Always pass altText for XMP AltTextAccessibility
     if (output.altText) {
       metadata.altText = output.altText;
     }
-
     if (settings.embedKeywords && output.keywords) {
       metadata.keywords = output.keywords;
     }
-
-    // Extract first word of category
     if (output.categories) {
-      const firstWord = output.categories.split(/[\s,]+/)[0]?.trim();
-      if (firstWord) {
-        metadata.category = firstWord.slice(0, 3);
-      }
+    metadata.category = output.categories;
     }
-
-    // Embed metadata client-side
-    const result = await embedJpegMetadata(file, metadata);
+    
+    // Determine format and embed
+    let result: Uint8Array | null = null;
+    let mimeType = file.type;
+    
+    if (isJpegFile(file)) {
+      result = await embedJpegMetadata(file, metadata);
+      mimeType = "image/jpeg";
+    } else if (isPngFile(file)) {
+      result = await embedPngMetadata(file, metadata);
+      mimeType = "image/png";
+    } else if (isWebpFile(file)) {
+      result = await embedWebpMetadata(file, metadata);
+      mimeType = "image/webp";
+    } else if (isSvgFile(file)) {
+      result = await embedSvgMetadata(file, metadata);
+      mimeType = "image/svg+xml";
+    } else if (isGifFile(file)) {
+      result = await embedGifMetadata(file, metadata);
+      mimeType = "image/gif";
+    }
     
     if (!result) {
-      // Invalid JPEG, return original
       const arrayBuffer = await file.arrayBuffer();
       return {
         blob: new Blob([arrayBuffer], { type: file.type }),
@@ -152,13 +158,12 @@ export async function embedMetadataIntoImage(
     }
 
     return {
-      blob: new Blob([new Uint8Array(result)], { type: "image/jpeg" }),
+      blob: new Blob([new Uint8Array(result)], { type: mimeType }),
       filename: newFilename,
       embedded: true,
     };
   } catch (error) {
     console.warn("Failed to embed metadata, returning original file:", error);
-    // Fallback: return original file
     const arrayBuffer = await file.arrayBuffer();
     return {
       blob: new Blob([arrayBuffer], { type: file.type }),
