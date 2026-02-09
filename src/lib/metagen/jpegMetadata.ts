@@ -60,9 +60,9 @@ function createIPTCBlock(metadata: {
     datasets.push(createIPTCDataset(IPTC_TAGS.HEADLINE, metadata.title.slice(0, 256)));
   }
 
-  // Add Caption-Abstract (same as title per user request)
-  if (metadata.title) {
-    datasets.push(createIPTCDataset(IPTC_TAGS.CAPTION_ABSTRACT, metadata.title.slice(0, 2000)));
+  // Add Caption-Abstract (Description)
+  if (metadata.description) {
+    datasets.push(createIPTCDataset(IPTC_TAGS.CAPTION_ABSTRACT, metadata.description.slice(0, 2000)));
   }
 
   // Add Category
@@ -156,17 +156,17 @@ function createIFDEntry(tag: number, type: number, count: number, valueOffset: n
 }
 
 // Create EXIF APP1 segment with ImageDescription and XP tags
-function createEXIFSegment(metadata: { title?: string; keywords?: string[] }): Uint8Array {
-  if (!metadata.title && (!metadata.keywords || metadata.keywords.length === 0)) {
+function createEXIFSegment(metadata: { title?: string; description?: string; keywords?: string[] }): Uint8Array {
+  if (!metadata.title && !metadata.description && (!metadata.keywords || metadata.keywords.length === 0)) {
     return new Uint8Array(0);
   }
 
   const entries: { tag: number; type: number; data: Uint8Array }[] = [];
 
-  // ImageDescription (ASCII string, type 2)
-  if (metadata.title) {
+  // ImageDescription (ASCII string, type 2) - use description
+  if (metadata.description || metadata.title) {
     const encoder = new TextEncoder();
-    const descBytes = encoder.encode(metadata.title + "\0");
+    const descBytes = encoder.encode((metadata.description || metadata.title) + "\0");
     entries.push({ tag: EXIF_TAGS.IMAGE_DESCRIPTION, type: 2, data: descBytes });
   }
 
@@ -176,9 +176,9 @@ function createEXIFSegment(metadata: { title?: string; keywords?: string[] }): U
     entries.push({ tag: EXIF_TAGS.XP_TITLE, type: 1, data: xpTitleBytes });
   }
 
-  // XPComment (BYTE array interpreted as UTF-16LE, type 1) - same as title
-  if (metadata.title) {
-    const xpCommentBytes = encodeUTF16LE(metadata.title);
+  // XPComment (BYTE array interpreted as UTF-16LE, type 1) - use description
+  if (metadata.description || metadata.title) {
+    const xpCommentBytes = encodeUTF16LE(metadata.description || metadata.title || "");
     entries.push({ tag: EXIF_TAGS.XP_COMMENT, type: 1, data: xpCommentBytes });
   }
 
@@ -503,6 +503,7 @@ function embedMetadataInJPEG(
 export interface EmbedMetadataInput {
   title?: string;
   description?: string;
+  altText?: string;
   keywords?: string;
   category?: string;
 }
@@ -524,6 +525,11 @@ export async function embedJpegMetadata(
   }
 
   const title = metadata.title?.trim();
+  const description = metadata.description?.trim();
+  const altText = metadata.altText?.trim() || description || title;
+  const category = metadata.category?.trim();
+  // Use only the first word of category
+  const firstWordCategory = category ? category.split(/[\s,]+/)[0] : undefined;
   
   // Parse keywords from comma-separated string
   const keywords = metadata.keywords
@@ -533,9 +539,9 @@ export async function embedJpegMetadata(
   // Create IPTC data
   const iptcData = createIPTCBlock({
     title,
-    description: metadata.description?.trim(),
+    description,
     keywords,
-    category: metadata.category?.trim(),
+    category: firstWordCategory,
   });
 
   // Create Photoshop resource block
@@ -544,15 +550,16 @@ export async function embedJpegMetadata(
   // Create EXIF segment with ImageDescription and XP tags
   const exifSegment = createEXIFSegment({
     title,
+    description: description || title,
     keywords,
   });
 
   // Create XMP segment for better cross-app compatibility
   const xmpSegment = createXMPSegment({
     title,
-    description: title,
+    description: description || title,
     label: title,
-    altText: title,
+    altText,
     keywords,
   });
 
@@ -571,4 +578,3 @@ export function isJpegFile(file: File): boolean {
     ext === "jpeg"
   );
 }
-
