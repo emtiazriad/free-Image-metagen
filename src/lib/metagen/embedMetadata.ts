@@ -1,7 +1,5 @@
 import type { MetaGenOutput } from "./types";
-
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+import { embedJpegMetadata, isJpegFile, type EmbedMetadataInput } from "./jpegMetadata";
 
 export type EmbedSettings = {
   enabled: boolean;
@@ -78,7 +76,7 @@ export function sanitizeFilename(title: string): string {
     .replace(/^-|-$/g, "");
 }
 
-// Embed metadata into JPEG image using edge function for IPTC support
+// Embed metadata into JPEG image using client-side processing
 export async function embedMetadataIntoImage(
   file: File,
   output: MetaGenOutput,
@@ -97,7 +95,7 @@ export async function embedMetadataIntoImage(
   }
 
   // Only JPEG files can have IPTC metadata embedded
-  const isJpeg = ext === "jpg" || ext === "jpeg";
+  const isJpeg = isJpegFile(file);
   
   if (!isJpeg || !settings.enabled) {
     // Return original file as blob for non-JPEG or if embedding disabled
@@ -110,10 +108,10 @@ export async function embedMetadataIntoImage(
   }
 
   try {
-    // Prepare metadata for edge function
-    const metadata: Record<string, string | undefined> = {
+    // Prepare metadata for client-side embedding
+    const metadata: EmbedMetadataInput = {
       newFilename,
-    };
+    } as EmbedMetadataInput & { newFilename?: string };
 
     if (settings.embedTitle && output.title) {
       metadata.title = output.title;
@@ -135,22 +133,11 @@ export async function embedMetadataIntoImage(
       }
     }
 
-    // Create form data for edge function
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("metadata", JSON.stringify(metadata));
-
-    // Call edge function using fetch directly for binary response
-    const response = await fetch(`${SUPABASE_URL}/functions/v1/embed-metadata`, {
-      method: "POST",
-      headers: {
-        "apikey": SUPABASE_ANON_KEY,
-      },
-      body: formData,
-    });
-
-    if (!response.ok) {
-      console.warn("Edge function error, falling back to original file:", response.statusText);
+    // Embed metadata client-side
+    const result = await embedJpegMetadata(file, metadata);
+    
+    if (!result) {
+      // Invalid JPEG, return original
       const arrayBuffer = await file.arrayBuffer();
       return {
         blob: new Blob([arrayBuffer], { type: file.type }),
@@ -159,14 +146,10 @@ export async function embedMetadataIntoImage(
       };
     }
 
-    // Get the response as a blob
-    const blob = await response.blob();
-    const wasEmbedded = response.headers.get("X-Metadata-Embedded") === "true";
-
     return {
-      blob,
+      blob: new Blob([new Uint8Array(result)], { type: "image/jpeg" }),
       filename: newFilename,
-      embedded: wasEmbedded,
+      embedded: true,
     };
   } catch (error) {
     console.warn("Failed to embed metadata, returning original file:", error);
