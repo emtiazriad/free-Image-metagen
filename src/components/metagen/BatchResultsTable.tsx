@@ -83,140 +83,191 @@ export function BatchResultsTable({
           />
         </div>
       </div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[88px]">Image</TableHead>
-            <TableHead>Generated metadata</TableHead>
-            <TableHead className="w-[120px]">Status</TableHead>
-             <TableHead className="max-w-0">Generated metadata</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {items.map((it) => (
-            <TableRow
-              key={it.id}
-              className={
-                "cursor-pointer " +
-                (selectedId === it.id ? "bg-muted/60 hover:bg-muted/60" : "")
-              }
-              onClick={() => onSelect?.(it.id)}
-            >
-              <TableCell>
-                <div className="h-14 w-14 overflow-hidden rounded-md border bg-background">
-                  <img src={it.previewUrl} alt={`${it.file.name} preview`} className="h-full w-full object-cover" loading="lazy" />
-                </div>
-              </TableCell>
-              <TableCell>
-                <div className="min-w-0 space-y-2">
-                  <TableCell className="max-w-0 overflow-hidden">
-                  <div className="min-w-0 max-w-full space-y-2 overflow-hidden">
-                    {it.error ? <div className="truncate text-xs text-destructive">{it.error}</div> : null}
+      {/* Desktop table */}
+      <div className="hidden md:block">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[88px]">Image</TableHead>
+              <TableHead className="max-w-0">Generated metadata</TableHead>
+              <TableHead className="w-[120px]">Status</TableHead>
+              <TableHead className="w-[170px] text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {items.map((it) => (
+              <TableRow
+                key={it.id}
+                className={
+                  "cursor-pointer " +
+                  (selectedId === it.id ? "bg-muted/60 hover:bg-muted/60" : "")
+                }
+                onClick={() => onSelect?.(it.id)}
+              >
+                <TableCell>
+                  <div className="h-14 w-14 overflow-hidden rounded-md border bg-background">
+                    <img src={it.previewUrl} alt={`${it.file.name} preview`} className="h-full w-full object-cover" loading="lazy" />
                   </div>
-
-                  <div className="grid gap-2">
-                    <div className="grid gap-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[11px] font-medium text-muted-foreground">TITLE</span>
-                        {it.output?.title && (
-                          <Badge variant="outline" className="h-4 px-1.5 text-[10px] font-normal">
-                            {it.output.title.length} chars
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="line-clamp-2 text-sm">{it.output?.title ?? "—"}</div>
+                </TableCell>
+                <TableCell className="max-w-0 overflow-hidden">
+                  <div className="min-w-0 max-w-full space-y-2 overflow-hidden">
+                    <div className="min-w-0">
+                      <div className="truncate text-sm font-medium">{it.file.name}</div>
+                      {it.error ? <div className="truncate text-xs text-destructive">{it.error}</div> : null}
                     </div>
-
-                    <div className="grid gap-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[11px] font-medium text-muted-foreground">DESCRIPTION</span>
-                        {it.output?.description && (
-                          <Badge variant="outline" className="h-4 px-1.5 text-[10px] font-normal">
-                            {it.output.description.length} chars
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="line-clamp-3 text-sm text-muted-foreground">{it.output?.description ?? "—"}</div>
-                    </div>
-
-                    <div className="grid gap-2 lg:grid-cols-2 lg:gap-3">
+                    <div className="grid gap-2">
                       <div className="grid gap-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-[11px] font-medium text-muted-foreground">KEYWORDS</span>
-                          {it.output?.keywords && (
+                          <span className="text-[11px] font-medium text-muted-foreground">TITLE</span>
+                          {it.output?.title && (
                             <Badge variant="outline" className="h-4 px-1.5 text-[10px] font-normal">
-                              {it.output.keywords.split(",").filter(k => k.trim()).length} keywords
+                              {it.output.title.length} chars
                             </Badge>
                           )}
                         </div>
-                        <div className="line-clamp-2 text-sm text-muted-foreground">{it.output?.keywords ?? "—"}</div>
+                        <div className="line-clamp-2 text-sm">{it.output?.title ?? "—"}</div>
                       </div>
                       <div className="grid gap-1">
-                        <div className="text-[11px] font-medium text-muted-foreground">CATEGORIES</div>
-                        <div className="line-clamp-2 text-sm text-muted-foreground">{it.output?.categories ?? "—"}</div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] font-medium text-muted-foreground">DESCRIPTION</span>
+                          {it.output?.description && (
+                            <Badge variant="outline" className="h-4 px-1.5 text-[10px] font-normal">
+                              {it.output.description.length} chars
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="line-clamp-3 text-sm text-muted-foreground">{it.output?.description ?? "—"}</div>
+                      </div>
+                      <div className="grid gap-2 lg:grid-cols-2 lg:gap-3">
+                        <div className="grid gap-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[11px] font-medium text-muted-foreground">KEYWORDS</span>
+                            {it.output?.keywords && (
+                              <Badge variant="outline" className="h-4 px-1.5 text-[10px] font-normal">
+                                {it.output.keywords.split(",").filter(k => k.trim()).length} keywords
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="line-clamp-2 text-sm text-muted-foreground">{it.output?.keywords ?? "—"}</div>
+                        </div>
+                        <div className="grid gap-1">
+                          <div className="text-[11px] font-medium text-muted-foreground">CATEGORIES</div>
+                          <div className="line-clamp-2 text-sm text-muted-foreground">{it.output?.categories ?? "—"}</div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </TableCell>
-              <TableCell>{statusBadge(it)}</TableCell>
-              <TableCell className="text-right">
-                <div className="inline-flex items-center justify-end gap-2">
-                  <Button type="button" variant="outline" size="sm" disabled={!it.output} onClick={() => onEdit(it.id)}>
-                    <Pencil />
-                    <span className="hidden sm:inline">Edit</span>
-                  </Button>
-                  <Button type="button" variant="outline" size="sm" disabled={it.status === "generating"} onClick={() => onRegenerate(it.id)}>
-                    <RotateCcw />
-                    <span className="hidden sm:inline">Regenerate</span>
-                  </Button>
+                </TableCell>
+                <TableCell>{statusBadge(it)}</TableCell>
+                <TableCell className="text-right">
+                  <div className="inline-flex items-center justify-end gap-2">
+                    <Button type="button" variant="outline" size="sm" disabled={!it.output} onClick={() => onEdit(it.id)}>
+                      <Pencil />
+                      <span className="hidden sm:inline">Edit</span>
+                    </Button>
+                    <Button type="button" variant="outline" size="sm" disabled={it.status === "generating"} onClick={() => onRegenerate(it.id)}>
+                      <RotateCcw />
+                      <span className="hidden sm:inline">Regenerate</span>
+                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button type="button" variant="outline" size="sm" disabled={!it.output}>
+                          <Download />
+                          <span className="hidden sm:inline">Export</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => it.output && onExportRow("generic", it.file.name, it.output)}>Generic CSV</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => it.output && onExportRow("adobe_stock", it.file.name, it.output)}>Adobe Stock CSV</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => it.output && onExportRow("shutterstock", it.file.name, it.output)}>Shutterstock CSV</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => it.output && onExportRow("freepik", it.file.name, it.output)}>Freepik CSV</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => it.output && onExportRow("pond5", it.file.name, it.output)}>Pond5 CSV</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => it.output && onExportRow("istock", it.file.name, it.output)}>iStock CSV</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => it.output && onExportRow("alamy", it.file.name, it.output)}>Alamy CSV</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => it.output && onExportRow("dreamstime", it.file.name, it.output)}>Dreamstime CSV</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => it.output && onExportRow("123rf", it.file.name, it.output)}>123RF CSV</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    <Button type="button" variant="outline" size="sm" onClick={() => onRemove(it.id)}>Remove</Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
 
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button type="button" variant="outline" size="sm" disabled={!it.output}>
-                        <Download />
-                        <span className="hidden sm:inline">Export</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => it.output && onExportRow("generic", it.file.name, it.output)}>
-                        Generic CSV
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => it.output && onExportRow("adobe_stock", it.file.name, it.output)}>
-                        Adobe Stock CSV
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => it.output && onExportRow("shutterstock", it.file.name, it.output)}>
-                        Shutterstock CSV
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => it.output && onExportRow("freepik", it.file.name, it.output)}>
-                        Freepik CSV
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => it.output && onExportRow("pond5", it.file.name, it.output)}>
-                        Pond5 CSV
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => it.output && onExportRow("istock", it.file.name, it.output)}>
-                        iStock CSV
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => it.output && onExportRow("alamy", it.file.name, it.output)}>
-                        Alamy CSV
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => it.output && onExportRow("dreamstime", it.file.name, it.output)}>
-                        Dreamstime CSV
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => it.output && onExportRow("123rf", it.file.name, it.output)}>
-                        123RF CSV
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                  <Button type="button" variant="outline" size="sm" onClick={() => onRemove(it.id)}>
-                    Remove
-                  </Button>
+      {/* Mobile card layout */}
+      <div className="md:hidden divide-y">
+        {items.map((it) => (
+          <div
+            key={it.id}
+            className={
+              "p-3 space-y-3 cursor-pointer " +
+              (selectedId === it.id ? "bg-muted/60" : "")
+            }
+            onClick={() => onSelect?.(it.id)}
+          >
+            <div className="flex items-start gap-3">
+              <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-md border bg-background">
+                <img src={it.previewUrl} alt={`${it.file.name} preview`} className="h-full w-full object-cover" loading="lazy" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="truncate text-sm font-medium">{it.file.name}</div>
+                  {statusBadge(it)}
                 </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+                {it.error ? <div className="truncate text-xs text-destructive mt-1">{it.error}</div> : null}
+              </div>
+            </div>
+
+            {it.output && (
+              <div className="space-y-2">
+                <div>
+                  <span className="text-[11px] font-medium text-muted-foreground">TITLE</span>
+                  <div className="line-clamp-2 text-sm">{it.output.title}</div>
+                </div>
+                <div>
+                  <span className="text-[11px] font-medium text-muted-foreground">DESCRIPTION</span>
+                  <div className="line-clamp-2 text-sm text-muted-foreground">{it.output.description}</div>
+                </div>
+                <div>
+                  <span className="text-[11px] font-medium text-muted-foreground">KEYWORDS</span>
+                  <div className="line-clamp-2 text-sm text-muted-foreground">{it.output.keywords}</div>
+                </div>
+              </div>
+            )}
+
+            <div className="flex flex-wrap gap-2">
+              <Button type="button" variant="outline" size="sm" disabled={!it.output} onClick={(e) => { e.stopPropagation(); onEdit(it.id); }}>
+                <Pencil className="h-3.5 w-3.5" /> Edit
+              </Button>
+              <Button type="button" variant="outline" size="sm" disabled={it.status === "generating"} onClick={(e) => { e.stopPropagation(); onRegenerate(it.id); }}>
+                <RotateCcw className="h-3.5 w-3.5" /> Redo
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button type="button" variant="outline" size="sm" disabled={!it.output} onClick={(e) => e.stopPropagation()}>
+                    <Download className="h-3.5 w-3.5" /> Export
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  <DropdownMenuItem onClick={() => it.output && onExportRow("generic", it.file.name, it.output)}>Generic CSV</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => it.output && onExportRow("adobe_stock", it.file.name, it.output)}>Adobe Stock CSV</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => it.output && onExportRow("shutterstock", it.file.name, it.output)}>Shutterstock CSV</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => it.output && onExportRow("freepik", it.file.name, it.output)}>Freepik CSV</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => it.output && onExportRow("pond5", it.file.name, it.output)}>Pond5 CSV</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => it.output && onExportRow("istock", it.file.name, it.output)}>iStock CSV</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => it.output && onExportRow("alamy", it.file.name, it.output)}>Alamy CSV</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => it.output && onExportRow("dreamstime", it.file.name, it.output)}>Dreamstime CSV</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => it.output && onExportRow("123rf", it.file.name, it.output)}>123RF CSV</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Button type="button" variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); onRemove(it.id); }}>Remove</Button>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
