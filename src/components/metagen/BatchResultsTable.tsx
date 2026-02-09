@@ -89,7 +89,7 @@ export function BatchResultsTable({
             <TableHead className="w-[88px]">Image</TableHead>
             <TableHead>Generated metadata</TableHead>
             <TableHead className="w-[120px]">Status</TableHead>
-            <TableHead className="w-[170px] text-right">Actions</TableHead>
+             <TableHead className="max-w-0">Generated metadata</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -109,8 +109,8 @@ export function BatchResultsTable({
               </TableCell>
               <TableCell>
                 <div className="min-w-0 space-y-2">
-                  <div className="min-w-0">
-                    <div className="truncate text-sm font-medium">{it.file.name}</div>
+                  <TableCell className="max-w-0 overflow-hidden">
+                  <div className="min-w-0 max-w-full space-y-2 overflow-hidden">
                     {it.error ? <div className="truncate text-xs text-destructive">{it.error}</div> : null}
                   </div>
 
