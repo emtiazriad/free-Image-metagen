@@ -66,7 +66,7 @@ function createIPTCBlock(metadata: {
 
   // Add Category
   if (metadata.category) {
-    datasets.push(createIPTCDataset(IPTC_TAGS.CATEGORY, metadata.category.slice(0, 3)));
+    datasets.push(createIPTCDataset(IPTC_TAGS.CATEGORY, metadata.category));
   }
 
   // Add Keywords (each keyword as separate dataset)
@@ -527,8 +527,8 @@ export async function embedJpegMetadata(
   const description = metadata.description?.trim();
   const altText = metadata.altText?.trim() || description || title;
   const category = metadata.category?.trim();
-  // Use only the first word of category
-  const firstWordCategory = category ? category.split(/[\s,]+/)[0] : undefined;
+  // Use full category value
+  const fullCategory = category || undefined;
   
   // Parse keywords from comma-separated string
   const keywords = metadata.keywords
@@ -540,7 +540,7 @@ export async function embedJpegMetadata(
     title,
     description,
     keywords,
-    category: firstWordCategory,
+   category: fullCategory,
   });
 
   // Create Photoshop resource block
