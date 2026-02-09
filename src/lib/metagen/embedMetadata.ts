@@ -121,15 +121,20 @@ export async function embedMetadataIntoImage(
       metadata.description = output.description;
     }
 
+    // Always pass altText for XMP AltTextAccessibility
+    if (output.altText) {
+      metadata.altText = output.altText;
+    }
+
     if (settings.embedKeywords && output.keywords) {
       metadata.keywords = output.keywords;
     }
 
-    // Extract first category if available
+    // Extract first word of category
     if (output.categories) {
-      const firstCategory = output.categories.split(",")[0]?.trim().slice(0, 3);
-      if (firstCategory) {
-        metadata.category = firstCategory;
+      const firstWord = output.categories.split(/[\s,]+/)[0]?.trim();
+      if (firstWord) {
+        metadata.category = firstWord.slice(0, 3);
       }
     }
 
