@@ -141,7 +141,7 @@ function smartTruncate(text: string, maxLen: number): string {
     return truncated.slice(0, bestCut).trim();
   }
   
-  // No sentence boundary found - fall back to word boundary
+    // No sentence boundary found - fall back to word boundary and add period
   const lastSpace = truncated.lastIndexOf(' ');
   
   let result: string;
@@ -151,6 +151,13 @@ function smartTruncate(text: string, maxLen: number): string {
     result = truncated;
   }
   
-  // Clean up trailing punctuation/spaces for incomplete sentences
-  return result.replace(/[\s,\-:;]+$/, '').trim();
+ // Clean up trailing punctuation/spaces and ensure sentence ends properly
+  result = result.replace(/[\s,\-:;]+$/, '').trim();
+  
+  // Add a period if the result doesn't end with sentence-ending punctuation
+  if (result && !/[.!?]$/.test(result)) {
+    result += '.';
+  }
+  
+  return result;
 }
