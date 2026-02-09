@@ -36,17 +36,18 @@ export function MetadataEditorDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl">
-        <DialogHeader>
+      <DialogContent className="max-w-3xl w-[95vw] max-h-[90vh] flex flex-col overflow-hidden">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle className="truncate">Metadata editor</DialogTitle>
           <DialogDescription className="truncate">
             {filename ? filename : "Select a generated row to edit."}
           </DialogDescription>
         </DialogHeader>
 
-        <Separator />
+        <Separator className="flex-shrink-0" />
 
-        <div className="grid gap-5 md:grid-cols-[240px,1fr]">
+        <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
+          <div className="grid gap-5 md:grid-cols-[240px,1fr] min-w-0">
           <div className="space-y-3">
             <div className="text-xs font-medium text-muted-foreground">PREVIEW</div>
             {previewUrl ? (
@@ -63,7 +64,7 @@ export function MetadataEditorDialog({
             )}
           </div>
 
-          <div className="grid gap-4">
+          <div className="grid gap-4 min-w-0">
             <div className="grid gap-2">
               <Label>Title</Label>
               <Textarea
@@ -114,9 +115,10 @@ export function MetadataEditorDialog({
               />
             </div>
           </div>
+          </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="flex-shrink-0">
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
@@ -136,3 +138,4 @@ export function MetadataEditorDialog({
     </Dialog>
   );
 }
+
