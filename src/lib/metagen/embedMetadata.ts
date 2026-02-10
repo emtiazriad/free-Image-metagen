@@ -120,12 +120,23 @@ export async function embedMetadataIntoImage(
     if (output.altText) {
       metadata.altText = output.altText;
     }
-    if (settings.embedKeywords && output.keywords) {
-      metadata.keywords = output.keywords;
-    }
-    if (output.categories) {
-    metadata.category = output.categories;
-    }
+
+    
+   // Build keyword list from keywords + categories
+if (settings.embedKeywords) {
+  const kw = output.keywords ? output.keywords.split(",") : [];
+  const cats = output.categories ? output.categories.split(",") : [];
+
+  const merged = [...kw, ...cats]
+    .map(k => k.trim())
+    .filter(Boolean);
+
+  if (merged.length) {
+    // Remove duplicates
+    metadata.keywords = [...new Set(merged)].join(", ");
+  }
+}
+
     
     // Determine format and embed
     let result: Uint8Array | null = null;
