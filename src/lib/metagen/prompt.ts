@@ -7,7 +7,7 @@ export function buildPrompt(controls: MetaGenControls) {
     ? `\nPOSITIVE KEYWORDS TO INCLUDE:\nYou MUST incorporate these keywords/concepts where naturally appropriate: ${positiveKeywords.trim()}\n`
     : "";
 
-  return `You are an expert in image SEO, stock photography metadata, and digital asset optimization.
+  return `You are an expert in image SEO, stock photography metadata, and digital asset optimization. Apply advanced metadata strategies—to ensure this image achieves top search rankings across search engines and stock marketplaces
 Analyze this image and generate metadata according to STRICT character and count limits.
 
 CONTEXT:
