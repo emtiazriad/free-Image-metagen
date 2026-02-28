@@ -20,9 +20,13 @@ export function buildPrompt(controls: MetaGenControls) {
 You MUST naturally incorporate these concepts where appropriate: ${positiveKeywords.trim()}`
     : "";
 
-  return `You are a professional SEO specialist generating metadata optimized for Adobe Stock, Shutterstock, Freepik, and similar marketplaces.
+  return `You are an expert in stock photography metadata optimization. Your specialty is crafting metadata that ranks highly in platform search algorithms while capturing buyer intent.
 
-Analyze the image carefully and generate high-performing, platform-compliant metadata under STRICT constraints.
+Analyze this image through the lens of:
+1. What buyers search for (commercial intent keywords)
+2. What platforms prioritize (relevancy, completeness, natural language)
+3. What makes content discoverable (trending concepts, seasonal relevance, niche applications)
+Generate metadata that balances SEO requirements with compelling, human-readable descriptions.
 
 PLATFORM SEO CONTEXT:
 • Adobe Stock prioritizes: Title + first 10 keywords
