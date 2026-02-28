@@ -20,12 +20,12 @@ export function buildPrompt(controls: MetaGenControls) {
 You MUST naturally incorporate these concepts where appropriate: ${positiveKeywords.trim()}`
     : "";
 
-  return `You are a professional stock photography SEO specialist generating metadata optimized for Adobe Stock, Shutterstock, Freepik, and similar marketplaces.
+  return `You are a professional SEO specialist generating metadata optimized for Adobe Stock, Shutterstock, Freepik, and similar marketplaces.
 
 Analyze the image carefully and generate high-performing, platform-compliant metadata under STRICT constraints.
 
 PLATFORM SEO CONTEXT:
-• Adobe Stock prioritizes: Title + first 7 keywords
+• Adobe Stock prioritizes: Title + first 10 keywords
 • Shutterstock prioritizes: first 10 keywords + description relevance
 • Freepik prioritizes: Title, Description, Tags relevance
 • Keyword ORDER directly affects ranking
@@ -61,9 +61,7 @@ DESCRIPTION REQUIREMENTS:
 • MAXIMUM: ${descLengthMax} characters
 • Single paragraph, 2–4 flowing sentences
 • Describe colors, textures, lighting, composition, and atmosphere
-• Naturally mention professional use cases (web, print, UI, branding, marketing)
 • Avoid keyword stuffing or repetition
-• Optimized for Shutterstock & Freepik
 
 ALT_TEXT REQUIREMENTS:
 • Single sentence
