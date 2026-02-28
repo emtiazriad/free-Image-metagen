@@ -1,20 +1,41 @@
 import type { MetaGenControls } from "./types";
 
+/**
+ * MAIN PROMPT — Multi-platform optimized
+ */
 export function buildPrompt(controls: MetaGenControls) {
-  const { titleLengthMin, titleLengthMax, descLengthMin, descLengthMax, keywordCount, keywordStyle, tone, positiveKeywords } = controls;
+  const {
+    titleLengthMin,
+    titleLengthMax,
+    descLengthMin,
+    descLengthMax,
+    keywordCount,
+    keywordStyle,
+    tone,
+    positiveKeywords
+  } = controls;
 
   const positiveKeywordsSection = positiveKeywords?.trim()
-    ? `\nPOSITIVE KEYWORDS TO INCLUDE:\nYou MUST incorporate these keywords/concepts where naturally appropriate: ${positiveKeywords.trim()}\n`
+    ? `POSITIVE KEYWORDS TO INCLUDE:
+You MUST naturally incorporate these concepts where appropriate: ${positiveKeywords.trim()}`
     : "";
 
-  return `You are an expert in image SEO, stock photography metadata, and digital asset optimization.
-Analyze this image and generate metadata according to STRICT character and count limits.
+  return `You are a professional stock photography SEO specialist generating metadata optimized for Adobe Stock, Shutterstock, Freepik, and similar marketplaces.
+
+Analyze the image carefully and generate high-performing, platform-compliant metadata under STRICT constraints.
+
+PLATFORM SEO CONTEXT:
+• Adobe Stock prioritizes: Title + first 7 keywords
+• Shutterstock prioritizes: first 10 keywords + description relevance
+• Freepik prioritizes: Title, Description, Tags relevance
+• Keyword ORDER directly affects ranking
 
 CONTEXT:
-- Keyword style: ${keywordStyle}
-- Tone: ${tone}
+• Keyword style: ${keywordStyle}
+• Tone: ${tone}
 ${positiveKeywordsSection}
-OUTPUT FORMAT (use EXACTLY this format):
+
+OUTPUT FORMAT (EXACT — no extra text):
 TITLE:
 DESCRIPTION:
 ALT_TEXT:
@@ -23,90 +44,153 @@ HASHTAGS:
 CATEGORIES:
 
 ═══════════════════════════════════════════════════════════════
-MANDATORY LENGTH REQUIREMENTS — FAILURE TO MEET = REJECTION
+MANDATORY LENGTH & STRUCTURE RULES — FAILURE = REJECTION
 ═══════════════════════════════════════════════════════════════
 
 TITLE REQUIREMENTS:
-• MINIMUM: ${titleLengthMin} characters — THIS IS CRITICAL, your title MUST reach this length
+• MINIMUM: ${titleLengthMin} characters
 • MAXIMUM: ${titleLengthMax} characters
-• Count EVERY character including spaces and punctuation
-• If your title is under ${titleLengthMin} chars, you MUST add more descriptive adjectives, context, or details
-• STRATEGY: Include setting, mood, style, purpose, and visual details to reach minimum
-• Example: "Ocean sunset" (12 chars) → "Breathtaking golden sunset over calm ocean waves reflecting warm amber light perfect for travel and nature photography backgrounds" (${Math.min(130, titleLengthMax)} chars)
+• Count ALL characters including spaces and punctuation
+• Start with the PRIMARY subject
+• Include style, key visual traits, mood, and intended use
+• Natural language only (no keyword lists)
+• Optimized for Adobe Stock & Freepik
 
 DESCRIPTION REQUIREMENTS:
-• MINIMUM: ${descLengthMin} characters — THIS IS CRITICAL, your description MUST reach this length
+• MINIMUM: ${descLengthMin} characters
 • MAXIMUM: ${descLengthMax} characters
-• Count EVERY character including spaces and punctuation
-• If under ${descLengthMin} chars, ADD: visual details, colors, textures, mood, use cases, applications, context
-• STRATEGY: Describe what you see, the atmosphere, potential uses, target audience, and style in detail
-• Write in flowing sentences, not bullet points
+• Single paragraph, 2–4 flowing sentences
+• Describe colors, textures, lighting, composition, and atmosphere
+• Naturally mention professional use cases (web, print, UI, branding, marketing)
+• Avoid keyword stuffing or repetition
+• Optimized for Shutterstock & Freepik
 
-KEYWORDS REQUIREMENTS:
-• You MUST generate EXACTLY ${keywordCount} keywords — not one more, not one less
-• Count your keywords before outputting!
-• Format: comma-separated, single words or 2-3 word phrases
-• Each keyword must be unique (no duplicates or near-duplicates)
-• Include: subject, style, mood, colors, concepts, use cases, related terms
+ALT_TEXT REQUIREMENTS:
+• Single sentence
+• 50–150 characters
+• Literal visual description for accessibility
+• No hashtags, no keyword lists
+
+KEYWORDS REQUIREMENTS (CRITICAL):
+• EXACTLY ${keywordCount} keywords — not more, not less
+• Comma-separated
+• Lowercase
+• Single words or 2–3 word phrases only
+• No duplicates or near-duplicates
+• ORDER MATTERS:
+  – First 7–10 keywords = highest SEO priority
+  – Remaining keywords = supporting concepts
+• Include subject, style, mood, colors, concepts, and use cases
+• Optimized for Adobe Stock & Shutterstock
+
+HASHTAGS REQUIREMENTS:
+• 10–15 hashtags
+• Single-word only
+• Lowercase
+• No punctuation or multi-word phrases
+• Relevant but not repetitive
+
+CATEGORIES REQUIREMENTS:
+• 2–5 broad stock marketplace categories
+• Comma-separated
+• Examples: Backgrounds, Abstract, Technology, Business, Nature
 
 ═══════════════════════════════════════════════════════════════
-OTHER RULES
+GLOBAL RULES
 ═══════════════════════════════════════════════════════════════
-• ALT_TEXT: Single sentence describing the image for accessibility (50-150 chars)
-• HASHTAGS: 10-15 relevant hashtags with # prefix, space-separated
-• CATEGORIES: 2-5 categories, comma-separated (e.g., "Nature, Travel, Landscape")
-• Every field MUST be present and NON-EMPTY
-• Do NOT use placeholders like "N/A" or leave any field blank
-• Do NOT add markdown, bullet points, or extra formatting
-• Return ONLY the fields in the exact format above`;
+• Every field must be present and NON-EMPTY
+• Each field must be ONE paragraph only (no line breaks inside fields)
+• Do NOT repeat the same phrase excessively across fields
+• Do NOT use placeholders, explanations, or markdown
+• Return ONLY the required fields in the exact format above
+
+FINAL CHECK (MANDATORY):
+Before responding, verify:
+• TITLE length is within limits
+• DESCRIPTION length is within limits
+• KEYWORDS count is EXACT
+If any condition fails, FIX IT BEFORE OUTPUT.`;
 }
 
+/**
+ * CONSTRAINT REPAIR PROMPT — Targeted Fixes Only
+ */
 export function buildConstraintRepairPrompt(
   controls: MetaGenControls,
-  issues: { titleTooShort?: boolean; titleTooLong?: boolean; descTooShort?: boolean; descTooLong?: boolean; keywordsTooFew?: boolean; keywordsTooMany?: boolean },
-  currentOutput: { title?: string; description?: string; keywords?: string }
+  issues: {
+    titleTooShort?: boolean;
+    titleTooLong?: boolean;
+    descTooShort?: boolean;
+    descTooLong?: boolean;
+    keywordsTooFew?: boolean;
+    keywordsTooMany?: boolean;
+  },
+  currentOutput: {
+    title?: string;
+    description?: string;
+    keywords?: string;
+  }
 ) {
-  const { titleLengthMin, titleLengthMax, descLengthMin, descLengthMax, keywordCount } = controls;
-  
+  const {
+    titleLengthMin,
+    titleLengthMax,
+    descLengthMin,
+    descLengthMax,
+    keywordCount
+  } = controls;
+
   const repairs: string[] = [];
-  
+
   if (issues.titleTooShort || issues.titleTooLong) {
-    const currentLen = currentOutput.title?.length ?? 0;
-    const issue = issues.titleTooShort 
-      ? `TOO SHORT (${currentLen} chars, need ${titleLengthMin}-${titleLengthMax})`
-      : `TOO LONG (${currentLen} chars, need ${titleLengthMin}-${titleLengthMax})`;
-    repairs.push(`TITLE: ${issue} — ${issues.titleTooShort ? 'EXPAND with more descriptive words' : 'SHORTEN while keeping meaning'}`);
+    const len = currentOutput.title?.length ?? 0;
+    repairs.push(
+      `TITLE ISSUE: ${
+        issues.titleTooShort
+          ? `TOO SHORT (${len} chars, must be ${titleLengthMin}-${titleLengthMax}) — EXPAND with descriptive details`
+          : `TOO LONG (${len} chars, must be ${titleLengthMin}-${titleLengthMax}) — SHORTEN without losing meaning`
+      }`
+    );
   }
-  
+
   if (issues.descTooShort || issues.descTooLong) {
-    const currentLen = currentOutput.description?.length ?? 0;
-    const issue = issues.descTooShort
-      ? `TOO SHORT (${currentLen} chars, need ${descLengthMin}-${descLengthMax})`
-      : `TOO LONG (${currentLen} chars, need ${descLengthMin}-${descLengthMax})`;
-    repairs.push(`DESCRIPTION: ${issue} — ${issues.descTooShort ? 'ADD more detail and context' : 'TRIM while preserving key information'}`);
+    const len = currentOutput.description?.length ?? 0;
+    repairs.push(
+      `DESCRIPTION ISSUE: ${
+        issues.descTooShort
+          ? `TOO SHORT (${len} chars, must be ${descLengthMin}-${descLengthMax}) — ADD visual detail and use cases`
+          : `TOO LONG (${len} chars, must be ${descLengthMin}-${descLengthMax}) — TRIM while preserving SEO`
+      }`
+    );
   }
-  
+
   if (issues.keywordsTooFew || issues.keywordsTooMany) {
-    const currentCount = currentOutput.keywords?.split(',').filter(k => k.trim()).length ?? 0;
-    const issue = issues.keywordsTooFew
-      ? `TOO FEW (${currentCount} keywords, need exactly ${keywordCount})`
-      : `TOO MANY (${currentCount} keywords, need exactly ${keywordCount})`;
-    repairs.push(`KEYWORDS: ${issue} — ${issues.keywordsTooFew ? 'ADD more relevant keywords' : 'REMOVE less relevant keywords'}`);
+    const count =
+      currentOutput.keywords?.split(",").filter(k => k.trim()).length ?? 0;
+    repairs.push(
+      `KEYWORDS ISSUE: ${
+        issues.keywordsTooFew
+          ? `TOO FEW (${count}, must be exactly ${keywordCount}) — ADD relevant keywords`
+          : `TOO MANY (${count}, must be exactly ${keywordCount}) — REMOVE least relevant keywords`
+      }`
+    );
   }
 
-  return `CONSTRAINT REPAIR — Fix the following issues:
+  return `CONSTRAINT REPAIR MODE — Fix ONLY the listed issues.
 
-${repairs.join('\n')}
+${repairs.join("\n")}
 
 CURRENT VALUES:
-${issues.titleTooShort || issues.titleTooLong ? `TITLE (${currentOutput.title?.length ?? 0} chars): ${currentOutput.title}` : ''}
-${issues.descTooShort || issues.descTooLong ? `DESCRIPTION (${currentOutput.description?.length ?? 0} chars): ${currentOutput.description}` : ''}
-${issues.keywordsTooFew || issues.keywordsTooMany ? `KEYWORDS (${currentOutput.keywords?.split(',').filter(k => k.trim()).length ?? 0} items): ${currentOutput.keywords}` : ''}
+${issues.titleTooShort || issues.titleTooLong ? `TITLE (${currentOutput.title?.length ?? 0} chars): ${currentOutput.title}` : ""}
+${issues.descTooShort || issues.descTooLong ? `DESCRIPTION (${currentOutput.description?.length ?? 0} chars): ${currentOutput.description}` : ""}
+${issues.keywordsTooFew || issues.keywordsTooMany ? `KEYWORDS (${currentOutput.keywords?.split(",").filter(k => k.trim()).length ?? 0}): ${currentOutput.keywords}` : ""}
 
-OUTPUT FORMAT — Return ONLY the fields that need fixing:
-${issues.titleTooShort || issues.titleTooLong ? `TITLE: (must be ${titleLengthMin}-${titleLengthMax} chars)` : ''}
-${issues.descTooShort || issues.descTooLong ? `DESCRIPTION: (must be ${descLengthMin}-${descLengthMax} chars)` : ''}
-${issues.keywordsTooFew || issues.keywordsTooMany ? `KEYWORDS: (must be exactly ${keywordCount} items, comma-separated)` : ''}
+OUTPUT FORMAT — Return ONLY the fields that require fixing:
+${issues.titleTooShort || issues.titleTooLong ? `TITLE:` : ""}
+${issues.descTooShort || issues.descTooLong ? `DESCRIPTION:` : ""}
+${issues.keywordsTooFew || issues.keywordsTooMany ? `KEYWORDS:` : ""}
 
-CRITICAL: Count characters/keywords carefully before responding!`;
+CRITICAL:
+• Recount characters and keywords carefully
+• Maintain SEO priority order in keywords
+• Do NOT modify fields that are already valid`;
 }
