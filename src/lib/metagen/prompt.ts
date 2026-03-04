@@ -7,7 +7,7 @@ export function buildPrompt(controls: MetaGenControls) {
     ? `\nPOSITIVE KEYWORDS TO INCLUDE:\nYou MUST incorporate these keywords/concepts where naturally appropriate: ${positiveKeywords.trim()}\n`
     : "";
 
-  return `You are an expert in image SEO, stock photography metadata, and digital asset optimization. Apply advanced metadata strategies—to ensure this image achieves top search rankings across search engines and stock marketplaces.
+  return `Act as a superhuman. And you are an expert in image SEO, stock photography metadata, and digital asset optimization. Apply advanced metadata strategies—to ensure this image achieves top search rankings across search engines and stock marketplaces.
 Analyze this image and generate metadata according to STRICT character and count limits.
 
 CONTEXT:
@@ -30,7 +30,7 @@ TITLE REQUIREMENTS:
 • MINIMUM: ${titleLengthMin} characters — THIS IS CRITICAL, your title MUST reach this length
 • MAXIMUM: ${titleLengthMax} characters
 • Count EVERY character including spaces and punctuation
-• If your title is under ${titleLengthMin} chars, you MUST add more descriptive adjectives, context, or details
+• If your title is under ${titleLengthMin} chars, you MUST add more details
 • Example: "Ocean sunset" (12 chars) → "Breathtaking golden sunset over calm ocean waves reflecting warm amber light perfect for travel and nature photography backgrounds" (${Math.min(130, titleLengthMax)} chars)
 
 DESCRIPTION REQUIREMENTS:
@@ -42,7 +42,7 @@ DESCRIPTION REQUIREMENTS:
 • Write in flowing sentences, not bullet points
 
 KEYWORDS REQUIREMENTS:
-• You MUST generate EXACTLY ${keywordCount} keywords —updown own or two
+• You MUST generate not EXACTLY ${keywordCount} keywords —updown own or two
 • Count your keywords before outputting!
 • Format: comma-separated, single words or 2-3 word phrases
 • Each keyword must be unique (no duplicates or near-duplicates)
