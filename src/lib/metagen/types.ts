@@ -1,7 +1,6 @@
 export type ProviderId = "gemini" | "groq";
 
 export type KeywordStyle = "SEO Focused" | "Stock Photography" | "Social Media" | "Artistic";
-export type Tone = "Professional" | "Creative" | "Marketing" | "Technical";
 
 export type MetaGenControls = {
   titleLengthMin: number;
@@ -10,8 +9,8 @@ export type MetaGenControls = {
   descLengthMax: number;
   keywordCount: number;
   keywordStyle: KeywordStyle;
-  tone: Tone;
   positiveKeywords?: string;
+  negativeKeywords?: string;
 };
 
 export type MetaGenOutput = {
