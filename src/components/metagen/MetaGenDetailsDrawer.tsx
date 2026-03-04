@@ -172,35 +172,30 @@ export function MetaGenDetailsDrawer({
                       <p className="text-xs text-muted-foreground">Keywords/concepts to include in the generated metadata.</p>
                     </div>
 
-                    <div className="grid gap-3">
-                      <div className="grid gap-2">
-                        <Label>Keyword style</Label>
-                        <Select value={controls.keywordStyle} onValueChange={(v) => setControls((p) => ({ ...p, keywordStyle: v as any }))}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="SEO Focused">SEO Focused</SelectItem>
-                            <SelectItem value="Stock Photography">Stock Photography</SelectItem>
-                            <SelectItem value="Social Media">Social Media</SelectItem>
-                            <SelectItem value="Artistic">Artistic</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="grid gap-2">
-                        <Label>Tone</Label>
-                        <Select value={controls.tone} onValueChange={(v) => setControls((p) => ({ ...p, tone: v as any }))}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Professional">Professional</SelectItem>
-                            <SelectItem value="Creative">Creative</SelectItem>
-                            <SelectItem value="Marketing">Marketing</SelectItem>
-                            <SelectItem value="Technical">Technical</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                 <div className="grid gap-2">
+                      <Label>Keyword style</Label>
+                      <Select value={controls.keywordStyle} onValueChange={(v) => setControls((p) => ({ ...p, keywordStyle: v as any }))}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="SEO Focused">SEO Focused</SelectItem>
+                          <SelectItem value="Stock Photography">Stock Photography</SelectItem>
+                          <SelectItem value="Social Media">Social Media</SelectItem>
+                          <SelectItem value="Artistic">Artistic</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label>Negative keywords <span className="text-muted-foreground font-normal">(optional)</span></Label>
+                      <Textarea
+                        value={controls.negativeKeywords ?? ""}
+                        onChange={(e) => setControls((p) => ({ ...p, negativeKeywords: e.target.value }))}
+                        placeholder="e.g. clipart, cartoon, illustration, AI generated"
+                        rows={2}
+                        className="resize-none"
+                      />
+                      <p className="text-xs text-muted-foreground">Keywords/concepts to exclude from the generated metadata.</p>
                     </div>
                   </CardContent>
               </Card>
