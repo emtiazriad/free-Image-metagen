@@ -1,10 +1,14 @@
 import type { MetaGenControls } from "./types";
 
 export function buildPrompt(controls: MetaGenControls) {
-  const { titleLengthMin, titleLengthMax, descLengthMin, descLengthMax, keywordCount, keywordStyle, tone, positiveKeywords } = controls;
+    const { titleLengthMin, titleLengthMax, descLengthMin, descLengthMax, keywordCount, keywordStyle, positiveKeywords, negativeKeywords } = controls;
 
   const positiveKeywordsSection = positiveKeywords?.trim()
     ? `\nPOSITIVE KEYWORDS TO INCLUDE:\nYou MUST incorporate these keywords/concepts where naturally appropriate: ${positiveKeywords.trim()}\n`
+
+        : "";
+  const negativeKeywordsSection = negativeKeywords?.trim()
+    ? `\nNEGATIVE KEYWORDS TO EXCLUDE:\nYou MUST NOT use any of these keywords/concepts in any field: ${negativeKeywords.trim()}\n`
     : "";
 
   return `Act as a human. And you are an expert in image SEO, stock photography metadata, and digital asset optimization. Apply advanced metadata strategies—to ensure this image achieves top search rankings across search engines and stock marketplaces.
@@ -12,8 +16,7 @@ Analyze this image and generate metadata according to STRICT character and count
 
 CONTEXT:
 - Keyword style: ${keywordStyle}
-- Tone: ${tone}
-${positiveKeywordsSection}
+${positiveKeywordsSection}${negativeKeywordsSection}
 OUTPUT FORMAT (use EXACTLY this format):
 TITLE:
 DESCRIPTION:
