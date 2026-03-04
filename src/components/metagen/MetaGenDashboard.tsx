@@ -92,7 +92,6 @@ export function MetaGenDashboard() {
     descLengthMax: 300,
     keywordCount: 30,
     keywordStyle: "SEO Focused",
-    tone: "Marketing",
   });
 
   
