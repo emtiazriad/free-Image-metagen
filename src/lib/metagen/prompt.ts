@@ -31,7 +31,6 @@ TITLE REQUIREMENTS:
 • MAXIMUM: ${titleLengthMax} characters
 • Count EVERY character including spaces and punctuation
 • If your title is under ${titleLengthMin} chars, you MUST add more descriptive adjectives, context, or details
-• STRATEGY: Include setting, mood, style, purpose, and visual details to reach minimum
 • Example: "Ocean sunset" (12 chars) → "Breathtaking golden sunset over calm ocean waves reflecting warm amber light perfect for travel and nature photography backgrounds" (${Math.min(130, titleLengthMax)} chars)
 
 DESCRIPTION REQUIREMENTS:
@@ -43,7 +42,7 @@ DESCRIPTION REQUIREMENTS:
 • Write in flowing sentences, not bullet points
 
 KEYWORDS REQUIREMENTS:
-• You MUST generate EXACTLY ${keywordCount} keywords — not one more, not one less
+• You MUST generate EXACTLY ${keywordCount} keywords —updown own or two
 • Count your keywords before outputting!
 • Format: comma-separated, single words or 2-3 word phrases
 • Each keyword must be unique (no duplicates or near-duplicates)
