@@ -28,6 +28,26 @@ const STOCK_PLATFORMS: { value: StockPlatform; label: string }[] = [
   { value: "istock", label: "iStock" },
 ];
 
+// Map embed presets to marketplace CSV export format
+const presetToMarketplace: Record<StockPlatform, MarketplaceExport> = {
+  adobe_stock: "adobe_stock",
+  shutterstock: "shutterstock",
+  getty_images: "generic", // Getty uses generic format
+  freepik: "freepik",
+  istock: "istock",
+};
+function downloadCSVBlob(csv: string, filename: string) {
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
 interface DownloadWithEmbeddingButtonProps {
   items: Array<{ file: File; output: MetaGenOutput }>;
   disabled?: boolean;
