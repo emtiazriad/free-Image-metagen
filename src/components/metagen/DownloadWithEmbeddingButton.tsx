@@ -16,6 +16,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 import type { MetaGenOutput, EmbedPreset } from "@/lib/metagen/types";
 import { embedPresets, embedMetadataIntoImage, type EmbedSettings } from "@/lib/metagen/embedMetadata";
+import { batchToMarketplaceCSV, type MarketplaceExport, type BatchRow } from "@/lib/metagen/batchExport";
 
 type StockPlatform = Exclude<EmbedPreset, "custom">;
 
