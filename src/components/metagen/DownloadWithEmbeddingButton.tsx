@@ -84,6 +84,7 @@ export function DownloadWithEmbeddingButton({ items, disabled }: DownloadWithEmb
 
     try {
       const isMultiple = items.length > 1;
+      const csvRows: BatchRow[] = [];
       
       if (isMultiple) {
         // Multiple files: embed all, then create ZIP
@@ -107,7 +108,8 @@ export function DownloadWithEmbeddingButton({ items, disabled }: DownloadWithEmb
         
         // Handle duplicate filenames
         const usedNames = new Map<string, number>();
-        for (const { blob, filename } of processedFiles) {
+        for (let idx = 0; idx < processedFiles.length; idx++) {
+          const { blob, filename } = processedFiles[idx];
           let finalName = filename;
           const count = usedNames.get(filename) || 0;
           if (count > 0) {
@@ -120,8 +122,8 @@ export function DownloadWithEmbeddingButton({ items, disabled }: DownloadWithEmb
           }
           usedNames.set(filename, count + 1);
           zip.file(finalName, blob);
+          csvRows.push({ filename: finalName, output: items[idx].output });
         }
-
         setProgress(75);
         setStatusMessage("Compressing...");
 
@@ -163,7 +165,18 @@ export function DownloadWithEmbeddingButton({ items, disabled }: DownloadWithEmb
         a.click();
         a.remove();
         URL.revokeObjectURL(url);
+        csvRows.push({ filename, output });
       }
+
+           // Auto-download matching CSV with renamed filenames
+      const marketplace = presetToMarketplace[selectedPlatform];
+      const csv = batchToMarketplaceCSV(csvRows, marketplace);
+      const platformLabel = STOCK_PLATFORMS.find(p => p.value === selectedPlatform)?.label || selectedPlatform;
+      const csvFilename = `${platformLabel.replace(/\s+/g, "-").toLowerCase()}-metadata.csv`;
+      
+      // Small delay so browser doesn't block the second download
+      await new Promise((r) => setTimeout(r, 500));
+      downloadCSVBlob(csv, csvFilename);
 
       setProgress(100);
       setCompleted(true);
@@ -269,8 +282,8 @@ export function DownloadWithEmbeddingButton({ items, disabled }: DownloadWithEmb
                   <p className="font-medium">Download Complete</p>
                   <p className="text-sm text-muted-foreground">
                     {isMultiple 
-                      ? `ZIP archive with ${items.length} images downloaded`
-                      : `Image downloaded with ${STOCK_PLATFORMS.find((p) => p.value === selectedPlatform)?.label} metadata`
+                      ? `ZIP archive with ${items.length} images + CSV downloaded`
+                      : `Image + CSV downloaded with ${STOCK_PLATFORMS.find((p) => p.value === selectedPlatform)?.label} metadata`
                     }
                   </p>
                 </div>
