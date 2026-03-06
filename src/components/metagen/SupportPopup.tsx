@@ -44,6 +44,8 @@ export function SupportPopup() {
           <DialogDescription className="text-base">
            সমস্যা–০১: কিছু ত্রুটির কারণে PNG এবং SVG ফাইলে embedded metadata সঠিকভাবে কাজ করবে না। তবে embedded metadata ব্যবহার করে ফাইল renaming এবং CSV ফিচার ঠিকভাবে কাজ করবে। JPG/JPEG ফাইলের ক্ষেত্রে কোনো সমস্যা নেই।
 ত্রুটি সমাধানের কাজ চলমান আছে। অনুগ্রহ করে কিছু সময় দিয়ে সহযোগিতা করবেন। এছাড়া অন্য কোনো ত্রুটি লক্ষ্য করলে অবশ্যই জানাবেন। 🙏
+            <p>Problem-01: Due to some issues, embedded metadata will not work properly for PNG and SVG files. However, using embedded metadata for file renaming and CSV operations will work correctly. There is no problem with JPG/JPEG files.
+The issue is being fixed, so please allow some time and cooperate. If you notice any other issues, be sure to let us know.</p>
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-3 pt-4">
