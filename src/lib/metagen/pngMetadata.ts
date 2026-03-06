@@ -1,290 +1,207 @@
+/**
+ * Client-side PNG metadata embedding using iTXt (international text) chunks.
+ * PNG spec: http://www.w3.org/TR/PNG/#11iTXt
+ *
+ * Standard keyword mappings:
+ *   Title       -> iTXt "Title"
+ *   Description -> iTXt "Description"
+ *   Comment     -> iTXt "Comment" (keywords as comma-separated)
+ *   Author      -> iTXt "Author"
+ *
+ * Additionally embeds XMP in an iTXt chunk keyed "XML:com.adobe.xmp" for
+ * broader compatibility with Adobe tools and stock platforms.
+ */
+
 import type { EmbedMetadataInput } from "./jpegMetadata";
+
+// ---- helpers ---------------------------------------------------------------
 
 const encoder = new TextEncoder();
 
-/* ---------------- CRC32 ---------------- */
-
+/** CRC-32 lookup table (IEEE polynomial) */
 const crcTable: Uint32Array = (() => {
-  const table = new Uint32Array(256);
-
+  const t = new Uint32Array(256);
   for (let n = 0; n < 256; n++) {
     let c = n;
-
     for (let k = 0; k < 8; k++) {
-      c = (c & 1) ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+      c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
     }
-
-    table[n] = c;
+    t[n] = c;
   }
-
-  return table;
+  return t;
 })();
 
 function crc32(data: Uint8Array): number {
-
   let crc = 0xffffffff;
-
   for (let i = 0; i < data.length; i++) {
     crc = crcTable[(crc ^ data[i]) & 0xff] ^ (crc >>> 8);
   }
-
   return (crc ^ 0xffffffff) >>> 0;
 }
 
-/* ---------------- CHUNK BUILDER ---------------- */
+/** Build a single PNG iTXt chunk. */
+function createITXtChunk(keyword: string, text: string): Uint8Array {
+  // iTXt layout: keyword(NUL) compressionFlag(0) compressionMethod(0)
+  //              languageTag(NUL) translatedKeyword(NUL) text
+  const kwBytes = encoder.encode(keyword);
+  const txtBytes = encoder.encode(text);
+  const dataLen = kwBytes.length + 1 + 1 + 1 + 1 + 1 + txtBytes.length;
 
+  const chunkData = new Uint8Array(dataLen);
+  let off = 0;
+  chunkData.set(kwBytes, off); off += kwBytes.length;
+  chunkData[off++] = 0; // NUL separator after keyword
+  chunkData[off++] = 0; // compression flag (0 = uncompressed)
+  chunkData[off++] = 0; // compression method
+  chunkData[off++] = 0; // language tag (empty) NUL
+  chunkData[off++] = 0; // translated keyword (empty) NUL
+  chunkData.set(txtBytes, off);
+
+  return buildChunk("iTXt", chunkData);
+}
+
+/** Wrap chunk data in length + type + data + CRC. */
 function buildChunk(type: string, data: Uint8Array): Uint8Array {
-
   const typeBytes = encoder.encode(type);
-
   const chunk = new Uint8Array(4 + 4 + data.length + 4);
-
+  // Length (4 bytes big-endian)
   const len = data.length;
-
-  chunk[0] = (len >>> 24) & 255;
-  chunk[1] = (len >>> 16) & 255;
-  chunk[2] = (len >>> 8) & 255;
-  chunk[3] = len & 255;
-
+  chunk[0] = (len >>> 24) & 0xff;
+  chunk[1] = (len >>> 16) & 0xff;
+  chunk[2] = (len >>> 8) & 0xff;
+  chunk[3] = len & 0xff;
+  // Type
   chunk.set(typeBytes, 4);
+  // Data
   chunk.set(data, 8);
-
-  const crcInput = new Uint8Array(typeBytes.length + data.length);
-
-  crcInput.set(typeBytes);
-  crcInput.set(data, typeBytes.length);
-
-  const crc = crc32(crcInput);
-
-  const crcOffset = 8 + data.length;
-
-  chunk[crcOffset] = (crc >>> 24) & 255;
-  chunk[crcOffset + 1] = (crc >>> 16) & 255;
-  chunk[crcOffset + 2] = (crc >>> 8) & 255;
-  chunk[crcOffset + 3] = crc & 255;
-
+  // CRC over type+data
+  const crcInput = new Uint8Array(4 + data.length);
+  crcInput.set(typeBytes, 0);
+  crcInput.set(data, 4);
+  const c = crc32(crcInput);
+  const crcOff = 8 + data.length;
+  chunk[crcOff] = (c >>> 24) & 0xff;
+  chunk[crcOff + 1] = (c >>> 16) & 0xff;
+  chunk[crcOff + 2] = (c >>> 8) & 0xff;
+  chunk[crcOff + 3] = c & 0xff;
   return chunk;
 }
 
-/* ---------------- tEXt CHUNK ---------------- */
-
-function createTextChunk(keyword: string, value: string): Uint8Array {
-
-  const key = encoder.encode(keyword);
-  const text = encoder.encode(value);
-
-  const data = new Uint8Array(key.length + 1 + text.length);
-
-  data.set(key, 0);
-  data[key.length] = 0;
-  data.set(text, key.length + 1);
-
-  return buildChunk("tEXt", data);
-}
-
-/* ---------------- iTXt CHUNK ---------------- */
-
-function createITXtChunk(keyword: string, text: string): Uint8Array {
-
-  const key = encoder.encode(keyword);
-  const value = encoder.encode(text);
-
-  const data = new Uint8Array(
-    key.length + 1 + 1 + 1 + 1 + 1 + value.length
-  );
-
-  let offset = 0;
-
-  data.set(key, offset);
-  offset += key.length;
-
-  data[offset++] = 0;
-  data[offset++] = 0;
-  data[offset++] = 0;
-  data[offset++] = 0;
-  data[offset++] = 0;
-
-  data.set(value, offset);
-
-  return buildChunk("iTXt", data);
-}
-
-/* ---------------- XMP PACKET ---------------- */
-
-function buildXMP(meta: EmbedMetadataInput): string {
+function buildXmpPacket(meta: EmbedMetadataInput): string {
+  const esc = (s: string) =>
+    s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  const langAlt = (v: string) =>
+    `<rdf:Alt><rdf:li xml:lang="x-default">${esc(v)}</rdf:li></rdf:Alt>`;
 
   const keywords = meta.keywords
-    ? meta.keywords
-        .split(",")
-        .map(k => `<rdf:li>${k.trim()}</rdf:li>`)
-        .join("")
-    : "";
+    ? meta.keywords.split(/,\s*/).filter(Boolean)
+    : [];
 
-  return `<?xpacket begin="﻿"?>
+  const parts: string[] = [];
+  if (meta.title) parts.push(`<dc:title>${langAlt(meta.title)}</dc:title>`);
+  if (meta.description || meta.title)
+    parts.push(`<dc:description>${langAlt(meta.description || meta.title || "")}</dc:description>`);
+  if (keywords.length)
+    parts.push(
+      `<dc:subject><rdf:Bag>${keywords.map((k) => `<rdf:li>${esc(k)}</rdf:li>`).join("")}</rdf:Bag></dc:subject>`
+    );
+  if (meta.title) parts.push(`<photoshop:Headline>${esc(meta.title)}</photoshop:Headline>`);
 
+  return `<?xpacket begin="\uFEFF" id="W5M0MpCehiHzreSzNTczkc9d"?>
 <x:xmpmeta xmlns:x="adobe:ns:meta/">
-
-<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-
-<rdf:Description rdf:about=""
-xmlns:dc="http://purl.org/dc/elements/1.1/"
-xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/">
-
-<dc:title>
-<rdf:Alt>
-<rdf:li xml:lang="x-default">${meta.title || ""}</rdf:li>
-</rdf:Alt>
-</dc:title>
-
-<dc:description>
-<rdf:Alt>
-<rdf:li xml:lang="x-default">${meta.description || ""}</rdf:li>
-</rdf:Alt>
-</dc:description>
-
-<dc:subject>
-<rdf:Bag>
-${keywords}
-</rdf:Bag>
-</dc:subject>
-
-<photoshop:Headline>${meta.title || ""}</photoshop:Headline>
-
-</rdf:Description>
-
-</rdf:RDF>
-
+ <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <rdf:Description rdf:about=""
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/">
+    ${parts.join("\n    ")}
+  </rdf:Description>
+ </rdf:RDF>
 </x:xmpmeta>
-
 <?xpacket end="w"?>`;
 }
 
-/* ---------------- REMOVE OLD METADATA ---------------- */
+// ---- public API ------------------------------------------------------------
 
-function stripTextChunks(data: Uint8Array): Uint8Array {
+/**
+ * Embed metadata into a PNG file.
+ * Returns the modified PNG bytes, or null if not a valid PNG.
+ */
+export async function embedPngMetadata(
+  file: File,
+  metadata: EmbedMetadataInput
+): Promise<Uint8Array | null> {
+  const buf = await file.arrayBuffer();
+  const data = new Uint8Array(buf);
 
+  // Verify PNG signature
+  const sig = [137, 80, 78, 71, 13, 10, 26, 10];
+  for (let i = 0; i < 8; i++) {
+    if (data[i] !== sig[i]) return null;
+  }
+
+  // Build metadata chunks
+  const chunks: Uint8Array[] = [];
+
+  if (metadata.title) {
+    chunks.push(createITXtChunk("Title", metadata.title));
+  }
+  if (metadata.description) {
+    chunks.push(createITXtChunk("Description", metadata.description));
+  }
+  if (metadata.keywords) {
+    chunks.push(createITXtChunk("Comment", metadata.keywords));
+  }
+
+  // XMP chunk for Adobe/stock platform compatibility
+  const xmp = buildXmpPacket(metadata);
+  chunks.push(createITXtChunk("XML:com.adobe.xmp", xmp));
+
+  if (chunks.length === 0) return null;
+
+  // Insert right after IHDR (the first chunk, always at offset 8)
+  // IHDR chunk: 4 len + 4 type + len data + 4 crc
+  const ihdrLen =
+    ((data[8] << 24) | (data[9] << 16) | (data[10] << 8) | data[11]) >>> 0;
+  const insertPos = 8 + 4 + 4 + ihdrLen + 4; // after IHDR
+
+  // Remove existing iTXt chunks with same keywords to avoid duplicates
+  const before = data.slice(0, insertPos);
+  const after = stripExistingTextChunks(data.slice(insertPos));
+
+  const totalChunkLen = chunks.reduce((s, c) => s + c.length, 0);
+  const result = new Uint8Array(before.length + totalChunkLen + after.length);
+  let off = 0;
+  result.set(before, off); off += before.length;
+  for (const c of chunks) { result.set(c, off); off += c.length; }
+  result.set(after, off);
+
+  return result;
+}
+
+/** Remove existing tEXt / iTXt / zTXt chunks so we don't duplicate. */
+function stripExistingTextChunks(data: Uint8Array): Uint8Array {
   const kept: Uint8Array[] = [];
-
   let pos = 0;
-
   while (pos + 8 <= data.length) {
+    const len = ((data[pos] << 24) | (data[pos + 1] << 16) | (data[pos + 2] << 8) | data[pos + 3]) >>> 0;
+    const type = String.fromCharCode(data[pos + 4], data[pos + 5], data[pos + 6], data[pos + 7]);
+    const chunkTotal = 4 + 4 + len + 4;
+    if (pos + chunkTotal > data.length) break;
 
-    const len =
-      ((data[pos] << 24) |
-      (data[pos + 1] << 16) |
-      (data[pos + 2] << 8) |
-      data[pos + 3]) >>> 0;
-
-    const type = String.fromCharCode(
-      data[pos + 4],
-      data[pos + 5],
-      data[pos + 6],
-      data[pos + 7]
-    );
-
-    const chunkSize = 12 + len;
-
-    if (pos + chunkSize > data.length) break;
-
-    if (
-      type !== "tEXt" &&
-      type !== "iTXt" &&
-      type !== "zTXt"
-    ) {
-      kept.push(data.slice(pos, pos + chunkSize));
+    if (type !== "tEXt" && type !== "iTXt" && type !== "zTXt") {
+      kept.push(data.slice(pos, pos + chunkTotal));
     }
-
-    pos += chunkSize;
+    pos += chunkTotal;
   }
 
   const total = kept.reduce((s, c) => s + c.length, 0);
-
   const result = new Uint8Array(total);
-
-  let offset = 0;
-
-  for (const c of kept) {
-    result.set(c, offset);
-    offset += c.length;
-  }
-
+  let off = 0;
+  for (const c of kept) { result.set(c, off); off += c.length; }
   return result;
 }
-
-/* ---------------- MAIN EMBED FUNCTION ---------------- */
-
-export async function embedPngMetadata(
-  file: File,
-  meta: EmbedMetadataInput
-): Promise<Uint8Array | null> {
-
-  const buffer = new Uint8Array(await file.arrayBuffer());
-
-  const signature = [137,80,78,71,13,10,26,10];
-
-  for (let i = 0; i < 8; i++) {
-    if (buffer[i] !== signature[i]) return null;
-  }
-
-  const chunks: Uint8Array[] = [];
-
-  if (meta.title) {
-    chunks.push(createTextChunk("Title", meta.title));
-    chunks.push(createITXtChunk("Title", meta.title));
-  }
-
-  if (meta.description) {
-    chunks.push(createTextChunk("Description", meta.description));
-    chunks.push(createITXtChunk("Description", meta.description));
-  }
-
-  if (meta.keywords) {
-    chunks.push(createTextChunk("Keywords", meta.keywords));
-    chunks.push(createITXtChunk("Keywords", meta.keywords));
-  }
-
-  const xmp = buildXMP(meta);
-
-  chunks.push(createITXtChunk("XML:com.adobe.xmp", xmp));
-
-  const ihdrLen =
-    ((buffer[8] << 24) |
-    (buffer[9] << 16) |
-    (buffer[10] << 8) |
-    buffer[11]) >>> 0;
-
-  const insertPos = 8 + 12 + ihdrLen;
-
-  const before = buffer.slice(0, insertPos);
-
-  const after = stripTextChunks(buffer.slice(insertPos));
-
-  const totalChunksSize = chunks.reduce((s,c)=>s+c.length,0);
-
-  const result = new Uint8Array(
-    before.length + totalChunksSize + after.length
-  );
-
-  let offset = 0;
-
-  result.set(before, offset);
-  offset += before.length;
-
-  for (const c of chunks) {
-    result.set(c, offset);
-    offset += c.length;
-  }
-
-  result.set(after, offset);
-
-  return result;
-}
-
-/* ---------------- FILE TYPE ---------------- */
 
 export function isPngFile(file: File): boolean {
-
   const ext = file.name.toLowerCase().split(".").pop() || "";
-
   return file.type === "image/png" || ext === "png";
 }
